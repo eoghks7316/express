@@ -1,4 +1,4 @@
-const express = require('express')
+var express = require('express')
 var fs = require('fs');
 var template = require('./lib/template.js');
 var sanitizeHtml = require('sanitize-html');
@@ -6,49 +6,54 @@ var path = require('path');
 var bodyParser = require('body-parser');
 
 const app = express()
+app.use(express.static('public'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-
-/***** 미들웨어 작성  *****/
 app.get('*', function (req, res, next) {
   fs.readdir('./data', function (error, filelist) {
     req.list = filelist;
     next();
   });
 })
-//route = path마다 정당한 응답
 
+//route = path마다 정당한 응답
 /*********** Read ************/
 app.get('/', function (req, res) {
   var title = 'Welcome';
   var description = 'Hello, Node.js';
   var list = template.list(req.list);
   var html = template.HTML(title, list,
-    `<h2>${title}</h2>${description}`,
+    `<h2>${title}</h2>${description}
+    <img src="images/hello.jpg" style="width:300px; display:block; margin-top:10px;">
+    `,
     `<a href="/create">create</a>`
   );
   res.send(html);
 })
 
-app.get('/page/:pageId', function (req, res) {
+app.get('/page/:pageId', function (req, res, next) {
   var filteredId = path.parse(req.params.pageId).base;
   fs.readFile(`data/${filteredId}`, 'utf8', function (err, description) {
-    var title = req.params.pageId
-    var sanitizedTitle = sanitizeHtml(title);
-    var sanitizedDescription = sanitizeHtml(description, {
-      allowedTags: ['h1']
-    });
-    var list = template.list(req.list);
-    var html = template.HTML(sanitizedTitle, list,
-      `<h2>${sanitizedTitle}</h2>${sanitizedDescription}`,
-      ` <a href="/create">create</a>
+    if (err) {
+      next(err);
+    } else {
+      var title = req.params.pageId
+      var sanitizedTitle = sanitizeHtml(title);
+      var sanitizedDescription = sanitizeHtml(description, {
+        allowedTags: ['h1']
+      });
+      var list = template.list(req.list);
+      var html = template.HTML(sanitizedTitle, list,
+        `<h2>${sanitizedTitle}</h2>${sanitizedDescription}`,
+        ` <a href="/create">create</a>
           <a href="/update/${sanitizedTitle}">update</a>
           <form action="/delete" method="post">
             <input type="hidden" name="id" value="${sanitizedTitle}">
             <input type="submit" value="delete">
           </form>`
-    );
-    res.send(html);
+      );
+      res.send(html);
+    }
   });
 })
 
@@ -117,6 +122,15 @@ app.post('/delete', function (req, res) {
 
 })
 
+/*********** Error ************/
+app.use(function (req, res, next) {
+  res.status(404).send('Sorry cant find that!')
+})
+
+app.use(function (err, req, res, next)/*인자 4개 error 핸들링 함수*/ {
+  console.error(err.stack)
+  res.status(500).send('Something broke!')
+})
 /*********** listen ************/
 app.listen(process.env.PORT | 3000, () => console.log('Example app listening on port 3000!'))
 
