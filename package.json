@@ -1,5 +1,5 @@
 {
-  "name": "web2-nodejs",
+  "name": "nodejs-express",
   "version": "1.0.0",
   "description": "",
   "main": "main.js",
@@ -11,12 +11,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/web-n/Nodejs.git"
+    "url": "git+https://github.com/eoghks7316/express"
   },
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/web-n/Nodejs/issues"
+    "url": "https://github.com/eoghks7316/express"
   },
   "homepage": "https://github.com/web-n/Nodejs#readme",
   "dependencies": {
