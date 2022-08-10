@@ -26,12 +26,80 @@ app.get('/', function (req, res) {
     `<h2>${title}</h2>${description}
     <img src="images/hello.jpg" style="width:300px; display:block; margin-top:10px;">
     `,
-    `<a href="/create">create</a>`
+    `<a href="/topic/create">create</a>`
   );
   res.send(html);
 })
 
-app.get('/page/:pageId', function (req, res, next) {
+/*********** Create ************/
+
+app.get('/topic/create', function (req, res) {
+  var title = 'WEB - Create';
+  var list = template.list(req.list);
+  var html = template.HTML(title, list, `
+      <form action="/topic/create_process" method="post">
+        <p><input type="text" name="title" placeholder="title"></p>
+        <p>
+          <textarea name="description" placeholder="description"></textarea>
+        </p>
+        <p>
+          <input type="submit">
+        </p>
+      </form>
+    `, '');
+  res.send(html);
+})
+
+app.post('/topic/create_process', function (req, res) {
+  fs.writeFile(`data/${req.body.title}`, req.body.description, 'utf8', function (err) {
+    res.redirect(`/topic/${req.body.title}`)
+  })
+})
+
+/*********** Delete ************/
+app.post('/topic/delete_process', function (req, res) {
+  fs.unlink(`data/${req.body.id}`, function (error) {
+    res.redirect('/')
+  })
+
+})
+
+/*********** Update ************/
+app.get('/topic/update/:pageId', function (req, res) {
+  var filteredId = path.parse(req.params.pageId).base;
+  fs.readFile(`data/${filteredId}`, 'utf8', function (err, description) {
+    var title = req.params.pageId;
+    var list = template.list(req.list);
+    var html = template.HTML(title, list,
+      `
+         <form action="/topic/update_process" method="post">
+           <input type="hidden" name="id" value="${title}">
+           <p><input type="text" name="title" placeholder="title" value="${title}"></p>
+           <p>
+             <textarea name="description" placeholder="description">${description}</textarea>
+           </p>
+           <p>
+             <input type="submit">
+           </p>
+         </form>
+         `,
+      ``
+    );
+    res.send(html)
+  });
+})
+
+app.post('/topic/update_process', function (req, res) {
+  fs.rename(`data/${req.body.id}`, `data/${req.body.title}`, function (error) {
+    fs.writeFile(`data/${req.body.title}`, req.body.description, 'utf8', function (err) {
+      res.redirect(`/topic/${req.body.title}`)
+    })
+  });
+})
+
+/*********** Read ************/
+
+app.get('/topic/:pageId', function (req, res, next) {
   var filteredId = path.parse(req.params.pageId).base;
   fs.readFile(`data/${filteredId}`, 'utf8', function (err, description) {
     if (err) {
@@ -45,9 +113,9 @@ app.get('/page/:pageId', function (req, res, next) {
       var list = template.list(req.list);
       var html = template.HTML(sanitizedTitle, list,
         `<h2>${sanitizedTitle}</h2>${sanitizedDescription}`,
-        ` <a href="/create">create</a>
-          <a href="/update/${sanitizedTitle}">update</a>
-          <form action="/delete" method="post">
+        ` <a href="/topic/create">create</a>
+          <a href="/topic/update/${sanitizedTitle}">update</a>
+          <form action="/topic/delete_process" method="post">
             <input type="hidden" name="id" value="${sanitizedTitle}">
             <input type="submit" value="delete">
           </form>`
@@ -57,70 +125,7 @@ app.get('/page/:pageId', function (req, res, next) {
   });
 })
 
-/*********** Create ************/
-app.get('/create', function (req, res) {
-  var title = 'WEB - Create';
-  var list = template.list(req.list);
-  var html = template.HTML(title, list, `
-      <form action="/create" method="post">
-        <p><input type="text" name="title" placeholder="title"></p>
-        <p>
-          <textarea name="description" placeholder="description"></textarea>
-        </p>
-        <p>
-          <input type="submit">
-        </p>
-      </form>
-    `, '');
-  res.send(html);
-})
 
-app.post('/create', function (req, res) {
-  fs.writeFile(`data/${req.body.title}`, req.body.description, 'utf8', function (err) {
-    res.redirect(`/page/${req.body.title}`)
-  })
-})
-
-/*********** Update ************/
-app.get('/update/:pageId', function (req, res) {
-  var filteredId = path.parse(req.params.pageId).base;
-  fs.readFile(`data/${filteredId}`, 'utf8', function (err, description) {
-    var title = req.params.pageId;
-    var list = template.list(req.list);
-    var html = template.HTML(title, list,
-      `
-         <form action="/update" method="post">
-           <input type="hidden" name="id" value="${title}">
-           <p><input type="text" name="title" placeholder="title" value="${title}"></p>
-           <p>
-             <textarea name="description" placeholder="description">${description}</textarea>
-           </p>
-           <p>
-             <input type="submit">
-           </p>
-         </form>
-         `,
-      `<a href="/create">create</a> <a href="/update/${title}">update</a>`
-    );
-    res.send(html)
-  });
-})
-
-app.post('/update', function (req, res) {
-  fs.rename(`data/${req.body.id}`, `data/${req.body.title}`, function (error) {
-    fs.writeFile(`data/${req.body.title}`, req.body.description, 'utf8', function (err) {
-      res.redirect(`/page/${req.body.title}`)
-    })
-  });
-})
-
-/*********** Delete ************/
-app.post('/delete', function (req, res) {
-  fs.unlink(`data/${req.body.id}`, function (error) {
-    res.redirect('/')
-  })
-
-})
 
 /*********** Error ************/
 app.use(function (req, res, next) {
