@@ -1,12 +1,14 @@
 var express = require('express')
 var fs = require('fs');
-
 var bodyParser = require('body-parser');
 var indexRouter = require('./routes/index');
 var topicRouter = require('./routes/topic');
-
+var helmet = require('helmet')
 
 const app = express()
+
+/*********** Secure ************/
+app.use(helmet());
 /*********** Static File ************/
 app.use(express.static('public'));
 
