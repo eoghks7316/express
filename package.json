@@ -18,7 +18,6 @@
   "bugs": {
     "url": "https://github.com/eoghks7316/express"
   },
-  "homepage": "https://github.com/web-n/Nodejs#readme",
   "dependencies": {
     "body-parse": "^0.1.0",
     "express": "^4.18.1",
