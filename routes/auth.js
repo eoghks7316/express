@@ -41,6 +41,12 @@ router.post('/login_process', function (req, res) {
 
 })
 
+router.get('/logout', function (req, res) {
+    req.session.destroy(function (err) {
+        res.redirect(`/`)
+    });
+})
+
 /*********** Create ************/
 
 // router.get('/create', function (req, res) {
