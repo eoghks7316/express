@@ -10,6 +10,10 @@ var auth = require('../lib/auth.js');
 /*********** Create ************/
 
 router.get('/create', function (req, res) {
+    if (!auth.IsLogin(req, res)) {
+        res.redirect('/')
+        return false
+    }
     var title = 'WEB - Create';
     var list = template.list(req.list);
     var html = template.HTML(title, list, `
@@ -27,6 +31,10 @@ router.get('/create', function (req, res) {
 })
 
 router.post('/create_process', function (req, res) {
+    if (!auth.IsLogin(req, res)) {
+        res.redirect('/')
+        return false
+    }
     fs.writeFile(`data/${req.body.title}`, req.body.description, 'utf8', function (err) {
         res.redirect(`/topic/${req.body.title}`)
     })
@@ -34,6 +42,10 @@ router.post('/create_process', function (req, res) {
 
 /*********** Delete ************/
 router.post('/delete_process', function (req, res) {
+    if (!auth.IsLogin(req, res)) {
+        res.redirect('/')
+        return false
+    }
     fs.unlink(`data/${req.body.id}`, function (error) {
         res.redirect('/')
     })
@@ -42,6 +54,10 @@ router.post('/delete_process', function (req, res) {
 
 /*********** Update ************/
 router.get('/update/:pageId', function (req, res) {
+    if (!auth.IsLogin(req, res)) {
+        res.redirect('/')
+        return false
+    }
     var filteredId = path.parse(req.params.pageId).base;
     fs.readFile(`data/${filteredId}`, 'utf8', function (err, description) {
         var title = req.params.pageId;
@@ -67,6 +83,10 @@ router.get('/update/:pageId', function (req, res) {
 })
 
 router.post('/update_process', function (req, res) {
+    if (!auth.IsLogin(req, res)) {
+        res.redirect('/')
+        return false
+    }
     fs.rename(`data/${req.body.id}`, `data/${req.body.title}`, function (error) {
         fs.writeFile(`data/${req.body.title}`, req.body.description, 'utf8', function (err) {
             res.redirect(`/topic/${req.body.title}`)

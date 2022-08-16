@@ -21,6 +21,8 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use(session({
+  //secure : true => https로만 session 정보 전달
+  HttpOnly: true,//javascript 막기
   secret: 'keyboard cat',
   resave: false,
   saveUninitialized: true,
