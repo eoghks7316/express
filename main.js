@@ -3,7 +3,11 @@ var fs = require('fs');
 var bodyParser = require('body-parser');
 var indexRouter = require('./routes/index');
 var topicRouter = require('./routes/topic');
+var authRouter = require('./routes/auth');
 var helmet = require('helmet')
+
+var session = require('express-session')
+var FileStore = require('session-file-store')(session)
 
 const app = express()
 
@@ -16,6 +20,13 @@ app.use(express.static('public'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
+app.use(session({
+  secret: 'keyboard cat',
+  resave: false,
+  saveUninitialized: true,
+  store: new FileStore()
+}))
+
 /*********** My Middle ware ************/
 app.get('*', function (req, res, next) {
   fs.readdir('./data', function (error, filelist) {
@@ -27,6 +38,7 @@ app.get('*', function (req, res, next) {
 /*********** Router ************/
 app.use('/', indexRouter);
 app.use('/topic', topicRouter);
+app.use('/auth', authRouter);
 
 /*********** Error ************/
 app.use(function (req, res, next) {

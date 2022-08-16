@@ -6,6 +6,7 @@ var template = require('../lib/template.js');
 var fs = require('fs');
 var bodyParser = require('body-parser');
 var sanitizeHtml = require('sanitize-html');
+var auth = require('../lib/auth.js');
 /*********** Create ************/
 
 router.get('/create', function (req, res) {
@@ -21,7 +22,7 @@ router.get('/create', function (req, res) {
             <input type="submit">
           </p>
         </form>
-      `, '');
+      `, '', auth.StatusUI(req, res));
     res.send(html);
 })
 
@@ -58,7 +59,8 @@ router.get('/update/:pageId', function (req, res) {
              </p>
            </form>
            `,
-            ``
+            ``,
+            auth.StatusUI(req, res)
         );
         res.send(html)
     });
@@ -93,7 +95,8 @@ router.get('/:pageId', function (req, res, next) {
             <form action="/topic/delete_process" method="post">
               <input type="hidden" name="id" value="${sanitizedTitle}">
               <input type="submit" value="delete">
-            </form>`
+            </form>`,
+                auth.StatusUI(req, res)
             );
             res.send(html);
         }
