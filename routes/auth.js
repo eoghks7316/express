@@ -7,11 +7,7 @@ var sanitizeHtml = require('sanitize-html');
 
 
 //authData는 외부로 빼야하며 비밀번호는 암호화 필요, 비밀번호는 관리자도 못보게해야한다.
-var authData = {
-    email: 'abcde1234@naver.com',
-    password: '1111',
-    nickname: 'admin'
-}
+
 
 /*********** Login ************/
 router.get('/login', function (req, res) {
@@ -27,25 +23,10 @@ router.get('/login', function (req, res) {
     res.send(html);
 })
 
-router.post('/login_process', function (req, res) {
-    var post = req.body;
-    var email = post.email;
-    var password = post.pwd;
-    if (email === authData.email && password === authData.password) {
-        req.session.islogined = true;
-        req.session.nickname = authData.nickname;
-        req.session.save(function () {
-            res.redirect('/');
-        })
-    } else {
-        res.send("Who?")
-    }
-
-})
-
 router.get('/logout', function (req, res) {
-    req.session.destroy(function (err) {
-        res.redirect(`/`)
+    req.logout(function (err) {
+        if (err) { return next(err); }
+        res.redirect('/');
     });
 })
 
