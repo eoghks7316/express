@@ -8,9 +8,9 @@ var sanitizeHtml = require('sanitize-html');
 
 //authData는 외부로 빼야하며 비밀번호는 암호화 필요, 비밀번호는 관리자도 못보게해야한다.
 var authData = {
-    email: 'zhfldk7316@naver.com',
-    password: '1234',
-    nickname: 'eoghks'
+    email: 'abcde1234@naver.com',
+    password: '1111',
+    nickname: 'admin'
 }
 
 /*********** Login ************/
